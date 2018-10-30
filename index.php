@@ -11,7 +11,7 @@ define("db_name", "CENTRALE_PRODUITS");
 
 //directory
 
-define("dir_pdf", "/var/www/facture_ac/Facture_traitement/public/pdf");
+define("dir_pdf", "/var/www/facture_ac/Facture_traitement/public/pdf/");
 
 $db = new db(hostname, db_name, user, pwd);
 
