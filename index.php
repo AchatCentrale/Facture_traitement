@@ -9,6 +9,9 @@ define("user", "AC_JBAGOSTIN");
 define("pwd", "35H7Hjvy");
 define("db_name", "CENTRALE_PRODUITS");
 
+//directory
+
+define("dir_pdf", "/var/www/facture_ac/Facture_traitement/public/pdf");
 
 $db = new db(hostname, db_name, user, pwd);
 
@@ -173,10 +176,10 @@ function listMessages($service, $userId, $query) {
                 // see http://en.wikipedia.org/wiki/Base64#Implementations_and_history
                 $data = strtr($attachPart->getData(), array('-' => '+', '_' => '/'));
 
-                if (!file_exists($message->getId())) {
-                    mkdir($message->getId(), 0777, true);
+                if (!file_exists(dir_pdf.$message->getId())) {
+                    mkdir(dir_pdf.$message->getId(), 0777, true);
                 }
-                $fh = fopen($message->getId().'/'.$filename, "w+");
+                $fh = fopen(dir_pdf.$message->getId().'/'.$filename, "w+");
                 fwrite($fh, base64_decode($data));
                 fclose($fh);
             }else {
@@ -191,21 +194,16 @@ function listMessages($service, $userId, $query) {
                         // Converting to standard RFC 4648 base64-encoding
                         // see http://en.wikipedia.org/wiki/Base64#Implementations_and_history
                         $data = strtr($attachPart->getData(), array('-' => '+', '_' => '/'));
-                        if (!file_exists($message->getId())) {
-                            mkdir($message->getId(), 0777, true);
+                        if (!file_exists(dir_pdf.$message->getId())) {
+                            mkdir(dir_pdf.$message->getId(), 0777, true);
                         }
-                        $fh = fopen($message->getId().'/'.$filename, "w+");
+                        $fh = fopen(dir_pdf.$message->getId().'/'.$filename, "w+");
                         fwrite($fh, base64_decode($data));
                         fclose($fh);
                     }
                 }
             }
 
-
-//            if($pj["mimeType"] == "text/plain"){
-//                $body = base64_decode($pj->getBody()->getData());
-//                $temp_result["corps"] = $body;
-//            }
         }
 
         foreach ($Message_headers as $header)
