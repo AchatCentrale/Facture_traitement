@@ -71,8 +71,7 @@ class downloadPdf extends AbstractController
             $connFourn->execute();
             $result = $connFourn->fetchAll();
 
-            dump($result);
-            $localPath = "/var/www/facture_ac/Facture_traitement/public/pdf/".$result["ER_ID_MESSAGE"];
+            $localPath = "/var/www/facture_ac/Facture_traitement/public/pdf/".$result[0]["ER_ID_MESSAGE"];
             $zipFile->addDir($localPath);
 
 
