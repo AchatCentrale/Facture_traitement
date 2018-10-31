@@ -12,7 +12,7 @@ define("db_name", "CENTRALE_PRODUITS");
 //directory
 
 define("dir_pdf", "/var/www/facture_ac/Facture_traitement/public/pdf/");
-define("dir_pdf", "/Users/jb/dev/facture_ac/public/pdf/");
+define("dir_pdf_dev", "/Users/jb/dev/facture_ac/public/pdf/");
 
 $db = new db(hostname, db_name, user, pwd);
 
@@ -269,7 +269,6 @@ $conn = $db->connect();
 foreach($messages as $msg){
 
 
-    dump($msg);
 
     $numberOfAttachement = count($msg["pj_filename"]);
 
@@ -299,7 +298,6 @@ end catch";
 
         foreach($msg["pj_filename"] as $index => $pjParse){
 
-            dump($pjParse);
 
             $sqlInsert = "BEGIN TRY
   INSERT INTO CENTRALE_PRODUITS.dbo.EMAILS_RECUS (ER_ID_MESSAGE, ER_EXPEDITEUR, ER_DESTINATAIRE, ER_OBJET, ER_CORPS, ER_DATE, ER_PIECE_JOINTE, INS_DATE, INS_USER, MAJ_USER, MAJ_DATE)
