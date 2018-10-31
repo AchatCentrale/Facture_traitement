@@ -12,6 +12,7 @@ define("db_name", "CENTRALE_PRODUITS");
 //directory
 
 define("dir_pdf", "/var/www/facture_ac/Facture_traitement/public/pdf/");
+define("dir_pdf", "/Users/jb/dev/facture_ac/public/pdf/");
 
 $db = new db(hostname, db_name, user, pwd);
 
@@ -155,21 +156,43 @@ function listMessages($service, $userId, $query) {
             "sujet" => "",
             "date" => "",
             "corps" => $Message->getSnippet(),
-            "pj_filename" => "",
+            "pj_filename" => [],
         ];
+
+        foreach ($Message_headers as $header)
+        {
+
+            if ($header   ["name"] == "To"){
+                $temp_result["destinataire"] = $header["value"];
+            }
+            if ($header["name"] == "From"){
+                preg_match_all('/<(.*)>/', $header["value"], $matches);
+                $mail_from = $matches[1][0];
+                $temp_result["expediteur"] = $mail_from;
+            }
+            if ($header["name"] == "Subject"){
+                $temp_result["sujet"] = $header["value"];
+
+            }
+            if ($header["name"] == "Date"){
+
+                $d = new DateTime($header["value"]);
+                $isoDate = $d->format("Y-m-d H:i:s");
+
+                $temp_result["date"] = $isoDate;
+            }
+        }
 
 
         $partAttchement = $Message->getPayload()->getParts();
 
         foreach ($partAttchement as $pj){
 
-
-
             if($pj["filename"] != null && strlen($pj["filename"]) > 0 && $pj["mimeType"] == "application/pdf"){
                 $filename = $pj["filename"];
                 $pjId = $pj->getBody()["attachmentId"];
 
-                $temp_result['pj_filename'] = $pj["filename"];
+                $temp_result['pj_filename'][] = $pj["filename"];
 
                 $attachPart = $service->users_messages_attachments->get($userId, $message->getId(), $pjId);
                 // Converting to standard RFC 4648 base64-encoding
@@ -184,11 +207,15 @@ function listMessages($service, $userId, $query) {
                 fclose($fh);
             }else {
                 $subPartAttach = $pj->getParts();
-                foreach ($subPartAttach as $pj) {
-                    if($pj["filename"] != null && strlen($pj["filename"]) > 0 && $pj["mimeType"] == "application/pdf"){
-                        $filename = $pj["filename"];
-                        $pjId = $pj->getBody()["attachmentId"];
-                        $temp_result['pj_filename'] = $pj["filename"];
+                $countPj = 0;
+                foreach ($subPartAttach as $SubPj) {
+
+                    if($SubPj["filename"] != null && strlen($SubPj["filename"]) > 0 && $SubPj["mimeType"] == "application/pdf"){
+
+                        $countPj++;
+                        $filename = $SubPj["filename"];
+                        $pjId = $SubPj->getBody()["attachmentId"];
+                        $temp_result['pj_filename'][] = $SubPj["filename"];
 
                         $attachPart = $service->users_messages_attachments->get($userId, $message->getId(), $pjId);
                         // Converting to standard RFC 4648 base64-encoding
@@ -200,40 +227,24 @@ function listMessages($service, $userId, $query) {
                         $fh = fopen(dir_pdf.$message->getId().'/'.$filename, "w+");
                         fwrite($fh, base64_decode($data));
                         fclose($fh);
+
                     }
+
+
                 }
+
             }
 
         }
 
-        foreach ($Message_headers as $header)
-        {
-           if ($header   ["name"] == "Delivered-To"){
-               $temp_result["destinataire"] = $header["value"];
-           }
-           if ($header["name"] == "From"){
-               preg_match_all('/<(.*)>/', $header["value"], $matches);
-               $mail_from = $matches[1][0];
-               $temp_result["expediteur"] = $mail_from;
-           }
-           if ($header["name"] == "Subject"){
-               $temp_result["sujet"] = $header["value"];
-
-           }
-           if ($header["name"] == "Date"){
-
-               $d = new DateTime($header["value"]);
-               $isoDate = $d->format("Y-m-d H:i:s");
 
 
 
-               $temp_result["date"] = $isoDate;
-           }
-        }
         array_push($resultParse, $temp_result);
 
         modifyMessage($service, $userId, $message->getId(), ['Label_9052799278633291032'], ["Label_1237456431701235769", "INBOX"] );
     }
+
     return $resultParse;
 }
 
@@ -244,15 +255,12 @@ function listMessages($service, $userId, $query) {
 $client = getClient();
 $service = new Google_Service_Gmail($client);
 
-// Print the labels in the user's account.
 $user = 'me';
-
 
 $messages = listMessages($service, $user, "is:unread label:Facture_non_traite");
 
-
-
 $conn = $db->connect();
+
 
 
 
@@ -261,7 +269,14 @@ $conn = $db->connect();
 foreach($messages as $msg){
 
 
-    $sqlInsert = "BEGIN TRY
+    dump($msg);
+
+    $numberOfAttachement = count($msg["pj_filename"]);
+
+
+    if ($numberOfAttachement == 1){
+
+        $sqlInsert = "BEGIN TRY
   INSERT INTO CENTRALE_PRODUITS.dbo.EMAILS_RECUS (ER_ID_MESSAGE, ER_EXPEDITEUR, ER_DESTINATAIRE, ER_OBJET, ER_CORPS, ER_DATE, ER_PIECE_JOINTE, INS_DATE, INS_USER, MAJ_USER, MAJ_DATE)
 VALUES (:message_id, :expediteur, :destinataire, :sujet, :corps, :date, :pj, GETDATE(), 'Facture.test.funecap@gmail.com', 'Facture.test.funecap@gmail.com',GETDATE() )
 end try
@@ -269,18 +284,47 @@ begin catch
     SELECT ERROR_MESSAGE() AS ErrorMessage;
 end catch";
 
+        $query = $conn->prepare($sqlInsert);
+        $query->bindParam(":message_id", $msg["message_id"]);
+        $query->bindParam(":expediteur", $msg["expediteur"]);
+        $query->bindParam(":destinataire", $msg["destinataire"]);
+        $query->bindParam(":sujet", $msg["sujet"]);
+        $query->bindParam(":corps", $msg["corps"]);
+        $query->bindParam(":date", $msg["date"]);
+        $query->bindParam(":pj", $msg["pj_filename"][0]);
 
-    $query = $conn->prepare($sqlInsert);
-    $query->bindParam(":message_id", $msg["message_id"]);
-    $query->bindParam(":expediteur", $msg["expediteur"]);
-    $query->bindParam(":destinataire", $msg["destinataire"]);
-    $query->bindParam(":sujet", $msg["sujet"]);
-    $query->bindParam(":corps", $msg["corps"]);
-    $query->bindParam(":date", $msg["date"]);
-    $query->bindParam(":pj", $msg["pj_filename"]);
+        $result = $query->execute();
+
+    }else {
+
+        foreach($msg["pj_filename"] as $index => $pjParse){
+
+            dump($pjParse);
+
+            $sqlInsert = "BEGIN TRY
+  INSERT INTO CENTRALE_PRODUITS.dbo.EMAILS_RECUS (ER_ID_MESSAGE, ER_EXPEDITEUR, ER_DESTINATAIRE, ER_OBJET, ER_CORPS, ER_DATE, ER_PIECE_JOINTE, INS_DATE, INS_USER, MAJ_USER, MAJ_DATE)
+VALUES (:message_id, :expediteur, :destinataire, :sujet, :corps, :date, :pj, GETDATE(), 'Facture.test.funecap@gmail.com', 'Facture.test.funecap@gmail.com',GETDATE() )
+end try
+begin catch
+    SELECT ERROR_MESSAGE() AS ErrorMessage;
+end catch";
+
+            $query = $conn->prepare($sqlInsert);
+            $query->bindParam(":message_id", $msg["message_id"]);
+            $query->bindParam(":expediteur", $msg["expediteur"]);
+            $query->bindParam(":destinataire", $msg["destinataire"]);
+            $query->bindParam(":sujet", $msg["sujet"]);
+            $query->bindParam(":corps", $msg["corps"]);
+            $query->bindParam(":date", $msg["date"]);
+            $query->bindParam(":pj", $pjParse);
+
+            $result = $query->execute();
+
+        }
 
 
-    $result = $query->execute();
+
+    }
 
 
 
