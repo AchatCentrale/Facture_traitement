@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+
+    {% for p in path %}
+
+
+        <a href="/pdf/download/id={{ p }}">{{ p }}</a>
+        <br>
+
+    {% endfor %}
+
+    <br>
+
+    <a href="/pdf/download/all">Tout télécharger</a>
+{% endblock %}
