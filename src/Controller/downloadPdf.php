@@ -22,7 +22,7 @@ class downloadPdf extends AbstractController
     public function pdf_list()
     {
         $finder = new Finder();
-        $finder->files()->in("/Users/jb/dev/facture_ac/public/pdf/");
+        $finder->files()->in("/var/www/facture_ac/Facture_traitement/public/pdf/");
 
         $path_array = [];
 
@@ -84,12 +84,12 @@ class downloadPdf extends AbstractController
     {
 
         $finder = new Finder();
-        $finder->files()->in("/Users/jb/dev/facture_ac/public/pdf/");
+        $finder->files()->in("/var/www/facture_ac/Facture_traitement/public/pdf/");
 
         $zipFile = new ZipFile();
 
         foreach ($finder as $file) {
-            $localPath = "/Users/jb/dev/facture_ac/public/pdf/".$file->getRelativePath();
+            $localPath = "/var/www/facture_ac/Facture_traitement/public/pdf/".$file->getRelativePath();
             $zipFile->addDir($localPath);
         }
         try{
