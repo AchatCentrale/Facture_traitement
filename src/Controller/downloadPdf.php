@@ -44,10 +44,10 @@ class downloadPdf extends AbstractController
     public function downloadSinglePdf($id_message)
     {
         $finder = new Finder();
-        $finder->files()->in("/Users/jb/dev/facture_ac/public/pdf/".$id_message)->files()->name("*.pdf");
+        $finder->files()->in("/var/www/facture_ac/Facture_traitement/public/pdf/".$id_message)->files()->name("*.pdf");
 
         $filecount = 0;
-        $files = glob("/Users/jb/dev/facture_ac/public/pdf/".$id_message ."/*.pdf");
+        $files = glob("/var/www/facture_ac/Facture_traitement/public/pdf/".$id_message ."/*.pdf");
         if ($files){
             $filecount = count($files);
         }
@@ -58,7 +58,7 @@ class downloadPdf extends AbstractController
                 return $this->file($file);
             }
         }else {
-            $localPath = "/Users/jb/dev/facture_ac/public/pdf/".$id_message;
+            $localPath = "/var/www/facture_ac/Facture_traitement/public/pdf/".$id_message;
             $zipFile = new ZipFile();
             try{
                 $zipFile
