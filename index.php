@@ -187,7 +187,6 @@ function listMessages($service, $userId, $query) {
         $partAttchement = $Message->getPayload()->getParts();
 
 
-        dump($partAttchement);
 
 
 
@@ -252,7 +251,7 @@ function listMessages($service, $userId, $query) {
 
         array_push($resultParse, $temp_result);
 
-        //modifyMessage($service, $userId, $message->getId(), ['Label_9052799278633291032'], ["Label_1237456431701235769", "INBOX"] );
+        modifyMessage($service, $userId, $message->getId(), ['Label_9052799278633291032'], ["Label_1237456431701235769", "INBOX"] );
     }
 
     return $resultParse;
@@ -272,69 +271,68 @@ $messages = listMessages($service, $user, "is:unread label:Facture_non_traite");
 $conn = $db->connect();
 
 
-dump($messages);
 
 
 
-//foreach($messages as $msg){
-//
-//
-//
-//    $numberOfAttachement = count($msg["pj_filename"]);
-//
-//
-//    if ($numberOfAttachement == 1){
-//
-//        $sqlInsert = "BEGIN TRY
-//  INSERT INTO CENTRALE_PRODUITS.dbo.EMAILS_RECUS (ER_ID_MESSAGE, ER_EXPEDITEUR, ER_DESTINATAIRE, ER_OBJET, ER_CORPS, ER_DATE, ER_PIECE_JOINTE, INS_DATE, INS_USER, MAJ_USER, MAJ_DATE)
-//VALUES (:message_id, :expediteur, :destinataire, :sujet, :corps, :date, :pj, GETDATE(), 'Facture.test.funecap@gmail.com', 'Facture.test.funecap@gmail.com',GETDATE() )
-//end try
-//begin catch
-//    SELECT ERROR_MESSAGE() AS ErrorMessage;
-//end catch";
-//
-//        $query = $conn->prepare($sqlInsert);
-//        $query->bindParam(":message_id", $msg["message_id"]);
-//        $query->bindParam(":expediteur", $msg["expediteur"]);
-//        $query->bindParam(":destinataire", $msg["destinataire"]);
-//        $query->bindParam(":sujet", $msg["sujet"]);
-//        $query->bindParam(":corps", $msg["corps"]);
-//        $query->bindParam(":date", $msg["date"]);
-//        $query->bindParam(":pj", $msg["pj_filename"][0]);
-//
-//        $result = $query->execute();
-//
-//    }else {
-//
-//        foreach($msg["pj_filename"] as $index => $pjParse){
-//
-//
-//            $sqlInsert = "BEGIN TRY
-//  INSERT INTO CENTRALE_PRODUITS.dbo.EMAILS_RECUS (ER_ID_MESSAGE, ER_EXPEDITEUR, ER_DESTINATAIRE, ER_OBJET, ER_CORPS, ER_DATE, ER_PIECE_JOINTE, INS_DATE, INS_USER, MAJ_USER, MAJ_DATE)
-//VALUES (:message_id, :expediteur, :destinataire, :sujet, :corps, :date, :pj, GETDATE(), 'Facture.test.funecap@gmail.com', 'Facture.test.funecap@gmail.com',GETDATE() )
-//end try
-//begin catch
-//    SELECT ERROR_MESSAGE() AS ErrorMessage;
-//end catch";
-//
-//            $query = $conn->prepare($sqlInsert);
-//            $query->bindParam(":message_id", $msg["message_id"]);
-//            $query->bindParam(":expediteur", $msg["expediteur"]);
-//            $query->bindParam(":destinataire", $msg["destinataire"]);
-//            $query->bindParam(":sujet", $msg["sujet"]);
-//            $query->bindParam(":corps", $msg["corps"]);
-//            $query->bindParam(":date", $msg["date"]);
-//            $query->bindParam(":pj", $pjParse);
-//
-//            $result = $query->execute();
-//
-//        }
-//
-//
-//
-//    }
-//
-//
-//
-//}
+foreach($messages as $msg){
+
+
+
+    $numberOfAttachement = count($msg["pj_filename"]);
+
+
+    if ($numberOfAttachement == 1){
+
+        $sqlInsert = "BEGIN TRY
+  INSERT INTO CENTRALE_PRODUITS.dbo.EMAILS_RECUS (ER_ID_MESSAGE, ER_EXPEDITEUR, ER_DESTINATAIRE, ER_OBJET, ER_CORPS, ER_DATE, ER_PIECE_JOINTE, INS_DATE, INS_USER, MAJ_USER, MAJ_DATE)
+VALUES (:message_id, :expediteur, :destinataire, :sujet, :corps, :date, :pj, GETDATE(), 'Facture.test.funecap@gmail.com', 'Facture.test.funecap@gmail.com',GETDATE() )
+end try
+begin catch
+    SELECT ERROR_MESSAGE() AS ErrorMessage;
+end catch";
+
+        $query = $conn->prepare($sqlInsert);
+        $query->bindParam(":message_id", $msg["message_id"]);
+        $query->bindParam(":expediteur", $msg["expediteur"]);
+        $query->bindParam(":destinataire", $msg["destinataire"]);
+        $query->bindParam(":sujet", $msg["sujet"]);
+        $query->bindParam(":corps", $msg["corps"]);
+        $query->bindParam(":date", $msg["date"]);
+        $query->bindParam(":pj", $msg["pj_filename"][0]);
+
+        $result = $query->execute();
+
+    }else {
+
+        foreach($msg["pj_filename"] as $index => $pjParse){
+
+
+            $sqlInsert = "BEGIN TRY
+  INSERT INTO CENTRALE_PRODUITS.dbo.EMAILS_RECUS (ER_ID_MESSAGE, ER_EXPEDITEUR, ER_DESTINATAIRE, ER_OBJET, ER_CORPS, ER_DATE, ER_PIECE_JOINTE, INS_DATE, INS_USER, MAJ_USER, MAJ_DATE)
+VALUES (:message_id, :expediteur, :destinataire, :sujet, :corps, :date, :pj, GETDATE(), 'Facture.test.funecap@gmail.com', 'Facture.test.funecap@gmail.com',GETDATE() )
+end try
+begin catch
+    SELECT ERROR_MESSAGE() AS ErrorMessage;
+end catch";
+
+            $query = $conn->prepare($sqlInsert);
+            $query->bindParam(":message_id", $msg["message_id"]);
+            $query->bindParam(":expediteur", $msg["expediteur"]);
+            $query->bindParam(":destinataire", $msg["destinataire"]);
+            $query->bindParam(":sujet", $msg["sujet"]);
+            $query->bindParam(":corps", $msg["corps"]);
+            $query->bindParam(":date", $msg["date"]);
+            $query->bindParam(":pj", $pjParse);
+
+            $result = $query->execute();
+
+        }
+
+
+
+    }
+
+
+
+}
 
