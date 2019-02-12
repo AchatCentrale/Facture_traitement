@@ -314,14 +314,12 @@ foreach($messages as $msg){
 
 
 
-        $sqlInsert = "BEGIN
-                       IF NOT EXISTS (SELECT * FROM CENTRALE_PRODUITS.dbo.EMAILS_RECUS 
-                                       WHERE ER_ID_MESSAGE = :message_id
-                       BEGIN
-                           INSERT INTO CENTRALE_PRODUITS.dbo.EMAILS_RECUS (ER_ID_MESSAGE, ER_EXPEDITEUR, ER_DESTINATAIRE, ER_OBJET, ER_CORPS, ER_DATE, ER_PIECE_JOINTE, INS_DATE, INS_USER, MAJ_USER, MAJ_DATE)
-                            VALUES (:message_id, :expediteur, :destinataire, :sujet, :corps, :date, :pj, GETDATE(), 'Facture.test.funecap@gmail.com', 'Facture.test.funecap@gmail.com',GETDATE() )
-                       END
-                    END";
+        $sqlInsert = "IF NOT EXISTS (SELECT * FROM CENTRALE_PRODUITS.dbo.EMAILS_RECUS
+                   WHERE ER_ID_MESSAGE = :message_id)
+                   BEGIN
+                       INSERT INTO CENTRALE_PRODUITS.dbo.EMAILS_RECUS (ER_ID_MESSAGE, ER_EXPEDITEUR, ER_DESTINATAIRE, ER_OBJET, ER_CORPS, ER_DATE, ER_PIECE_JOINTE, INS_DATE, INS_USER, MAJ_USER, MAJ_DATE)
+                        VALUES (:message_id, :expediteur, :destinataire, :sujet, :corps, :date, :pj, GETDATE(), 'Facture.test.funecap@gmail.com', 'Facture.test.funecap@gmail.com',GETDATE() )
+                   END";
 
         $query = $conn->prepare($sqlInsert);
         $query->bindParam(":message_id", $msg["message_id"]);
@@ -339,14 +337,12 @@ foreach($messages as $msg){
         foreach($msg["pj_filename"] as $index => $pjParse){
 
 
-            $sqlInsert = "BEGIN
-                       IF NOT EXISTS (SELECT * FROM CENTRALE_PRODUITS.dbo.EMAILS_RECUS 
-                                       WHERE ER_ID_MESSAGE = :message_id
-                       BEGIN
-                           INSERT INTO CENTRALE_PRODUITS.dbo.EMAILS_RECUS (ER_ID_MESSAGE, ER_EXPEDITEUR, ER_DESTINATAIRE, ER_OBJET, ER_CORPS, ER_DATE, ER_PIECE_JOINTE, INS_DATE, INS_USER, MAJ_USER, MAJ_DATE)
-                            VALUES (:message_id, :expediteur, :destinataire, :sujet, :corps, :date, :pj, GETDATE(), 'Facture.test.funecap@gmail.com', 'Facture.test.funecap@gmail.com',GETDATE() )
-                       END
-                    END";
+            $sqlInsert = "IF NOT EXISTS (SELECT * FROM CENTRALE_PRODUITS.dbo.EMAILS_RECUS
+                   WHERE ER_ID_MESSAGE = :message_id)
+                   BEGIN
+                       INSERT INTO CENTRALE_PRODUITS.dbo.EMAILS_RECUS (ER_ID_MESSAGE, ER_EXPEDITEUR, ER_DESTINATAIRE, ER_OBJET, ER_CORPS, ER_DATE, ER_PIECE_JOINTE, INS_DATE, INS_USER, MAJ_USER, MAJ_DATE)
+                        VALUES (:message_id, :expediteur, :destinataire, :sujet, :corps, :date, :pj, GETDATE(), 'Facture.test.funecap@gmail.com', 'Facture.test.funecap@gmail.com',GETDATE() )
+                   END";
 
             $query = $conn->prepare($sqlInsert);
             $query->bindParam(":message_id", $msg["message_id"]);
