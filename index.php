@@ -253,12 +253,40 @@ function listMessages($service, $userId, $query) {
 
         array_push($resultParse, $temp_result);
 
-        modifyMessage($service, $userId, $message->getId(), ['Label_9052799278633291032'], ["Label_1237456431701235769", "INBOX"] );
+        modifyMessage($service, $userId, $message->getId(), ['Label_9052799278633291032'], ["Facture_non_traite", "INBOX"] );
     }
 
     return $resultParse;
 }
 
+
+/**
+ * Get all the Labels in the user's mailbox.
+ *
+ * @param  Google_Service_Gmail $service Authorized Gmail API instance.
+ * @param  string $userId User's email address. The special value 'me'
+ * can be used to indicate the authenticated user.
+ * @return array Array of Labels.
+ */
+function listLabels($service, $userId) {
+    $labels = array();
+
+    try {
+        $labelsResponse = $service->users_labels->listUsersLabels($userId);
+
+        if ($labelsResponse->getLabels()) {
+            $labels = array_merge($labels, $labelsResponse->getLabels());
+        }
+
+        foreach ($labels as $label) {
+            print 'Label with ID: ' . $label->getId() . '<br/>';
+        }
+    } catch (Excetion $e) {
+        print 'An error occurred: ' . $e->getMessage();
+    }
+
+    return $labels;
+}
 
 
 
@@ -272,7 +300,7 @@ $messages = listMessages($service, $user, "is:unread label:Facture_non_traite");
 
 $conn = $db->connect();
 
-
+dump(listLabels($service, $user));
 
 
 
@@ -285,13 +313,16 @@ foreach($messages as $msg){
 
     if ($numberOfAttachement == 1){
 
-        $sqlInsert = "BEGIN TRY
-  INSERT INTO CENTRALE_PRODUITS.dbo.EMAILS_RECUS (ER_ID_MESSAGE, ER_EXPEDITEUR, ER_DESTINATAIRE, ER_OBJET, ER_CORPS, ER_DATE, ER_PIECE_JOINTE, INS_DATE, INS_USER, MAJ_USER, MAJ_DATE)
-VALUES (:message_id, :expediteur, :destinataire, :sujet, :corps, :date, :pj, GETDATE(), 'Facture.test.funecap@gmail.com', 'Facture.test.funecap@gmail.com',GETDATE() )
-end try
-begin catch
-    SELECT ERROR_MESSAGE() AS ErrorMessage;
-end catch";
+
+
+        $sqlInsert = "BEGIN
+                       IF NOT EXISTS (SELECT * FROM CENTRALE_PRODUITS.dbo.EMAILS_RECUS 
+                                       WHERE ER_ID_MESSAGE = :message_id
+                       BEGIN
+                           INSERT INTO CENTRALE_PRODUITS.dbo.EMAILS_RECUS (ER_ID_MESSAGE, ER_EXPEDITEUR, ER_DESTINATAIRE, ER_OBJET, ER_CORPS, ER_DATE, ER_PIECE_JOINTE, INS_DATE, INS_USER, MAJ_USER, MAJ_DATE)
+                            VALUES (:message_id, :expediteur, :destinataire, :sujet, :corps, :date, :pj, GETDATE(), 'Facture.test.funecap@gmail.com', 'Facture.test.funecap@gmail.com',GETDATE() )
+                       END
+                    END";
 
         $query = $conn->prepare($sqlInsert);
         $query->bindParam(":message_id", $msg["message_id"]);
@@ -309,13 +340,14 @@ end catch";
         foreach($msg["pj_filename"] as $index => $pjParse){
 
 
-            $sqlInsert = "BEGIN TRY
-  INSERT INTO CENTRALE_PRODUITS.dbo.EMAILS_RECUS (ER_ID_MESSAGE, ER_EXPEDITEUR, ER_DESTINATAIRE, ER_OBJET, ER_CORPS, ER_DATE, ER_PIECE_JOINTE, INS_DATE, INS_USER, MAJ_USER, MAJ_DATE)
-VALUES (:message_id, :expediteur, :destinataire, :sujet, :corps, :date, :pj, GETDATE(), 'Facture.test.funecap@gmail.com', 'Facture.test.funecap@gmail.com',GETDATE() )
-end try
-begin catch
-    SELECT ERROR_MESSAGE() AS ErrorMessage;
-end catch";
+            $sqlInsert = "BEGIN
+                       IF NOT EXISTS (SELECT * FROM CENTRALE_PRODUITS.dbo.EMAILS_RECUS 
+                                       WHERE ER_ID_MESSAGE = :message_id
+                       BEGIN
+                           INSERT INTO CENTRALE_PRODUITS.dbo.EMAILS_RECUS (ER_ID_MESSAGE, ER_EXPEDITEUR, ER_DESTINATAIRE, ER_OBJET, ER_CORPS, ER_DATE, ER_PIECE_JOINTE, INS_DATE, INS_USER, MAJ_USER, MAJ_DATE)
+                            VALUES (:message_id, :expediteur, :destinataire, :sujet, :corps, :date, :pj, GETDATE(), 'Facture.test.funecap@gmail.com', 'Facture.test.funecap@gmail.com',GETDATE() )
+                       END
+                    END";
 
             $query = $conn->prepare($sqlInsert);
             $query->bindParam(":message_id", $msg["message_id"]);
