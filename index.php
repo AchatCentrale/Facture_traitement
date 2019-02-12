@@ -253,7 +253,7 @@ function listMessages($service, $userId, $query) {
 
         array_push($resultParse, $temp_result);
 
-        modifyMessage($service, $userId, $message->getId(), ['Label_9052799278633291032'], ["Facture_non_traite", "INBOX"] );
+        modifyMessage($service, $userId, $message->getId(), ['Label_8684840702178646650'], ["Label_8987365709096313352", "INBOX"] );
     }
 
     return $resultParse;
