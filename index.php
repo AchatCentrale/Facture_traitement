@@ -27,11 +27,11 @@ function getClient()
     $client = new Google_Client();
     $client->setApplicationName('Gmail API PHP Quickstart');
     $client->setScopes(Google_Service_Gmail::GMAIL_MODIFY);
-    $client->setAuthConfig('credentials.json');
+    $client->setAuthConfig('/var/www/Facture_traitement/credentials.json');
     $client->setAccessType('offline');
 
     // Load previously authorized token from a file, if it exists.
-    $tokenPath = 'token.json';
+    $tokenPath = '/var/www/Facture_traitement/token.json';
     if (file_exists($tokenPath)) {
         $accessToken = json_decode(file_get_contents($tokenPath), true);
         $client->setAccessToken($accessToken);
