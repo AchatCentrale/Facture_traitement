@@ -300,6 +300,7 @@ $messages = listMessages($service, $user, "is:unread label:Facture_non_traite");
 
 $conn = $db->connect();
 
+dump(listLabels($service, $user));
 
 
 
