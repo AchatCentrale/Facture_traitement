@@ -202,7 +202,7 @@ function listMessages($service, $userId, $query) {
 
                 //$filename = $pj["filename"];
 
-                $filename = "Facture-".$compteur++;
+                $filename = "Facture-".$compteur++.".pdf";
 
                 $pjId = $pj->getBody()["attachmentId"];
 
@@ -227,7 +227,7 @@ function listMessages($service, $userId, $query) {
                     if($SubPj["filename"] != null && strlen($SubPj["filename"]) > 0 && $SubPj["mimeType"] == "application/pdf"){
 
                         $countPj++;
-                        $filename = "Facture-".$compteur++;
+                        $filename = "Facture-".$compteur++.".pdf";
 
                         $pjId = $SubPj->getBody()["attachmentId"];
                         $temp_result['pj_filename'][] = $SubPj["filename"];
