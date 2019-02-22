@@ -189,7 +189,7 @@ function listMessages($service, $userId, $query) {
         $partAttchement = $Message->getPayload()->getParts();
 
 
-
+        $compteur = 0;
 
 
 
@@ -200,10 +200,13 @@ function listMessages($service, $userId, $query) {
 
             if($pj["filename"] != null && strlen($pj["filename"]) > 0 && $pj["mimeType"] == "application/pdf" ||  $pj["mimeType"] == "application/octet-stream"){
 
-                $filename = $pj["filename"];
+                //$filename = $pj["filename"];
+
+                $filename = "Facture-".$compteur++;
+
                 $pjId = $pj->getBody()["attachmentId"];
 
-                $temp_result['pj_filename'][] = $pj["filename"];
+                $temp_result['pj_filename'][] = $filename;
 
                 $attachPart = $service->users_messages_attachments->get($userId, $message->getId(), $pjId);
                 // Converting to standard RFC 4648 base64-encoding
@@ -224,7 +227,8 @@ function listMessages($service, $userId, $query) {
                     if($SubPj["filename"] != null && strlen($SubPj["filename"]) > 0 && $SubPj["mimeType"] == "application/pdf"){
 
                         $countPj++;
-                        $filename = $SubPj["filename"];
+                        $filename = "Facture-".$compteur++;
+
                         $pjId = $SubPj->getBody()["attachmentId"];
                         $temp_result['pj_filename'][] = $SubPj["filename"];
 
