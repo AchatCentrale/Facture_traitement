@@ -162,11 +162,18 @@ function listMessages($service, $userId, $query) {
         foreach ($Message_headers as $header)
         {
 
-            if ($header["name"] == "To"){
-                preg_match_all('/<(.*)>/', $header["value"], $matches);
-                $mail_from = $matches[1][0];
-                $temp_result["destinataire"] = $mail_from;
+	   if ($header["name"] == "To"){
+                if($header["name"][0] === "<"){
+                    preg_match_all('/<(.*)>/', $header["value"], $matches);
+                    $mail_from = $matches[1][0];
+                    $temp_result["destinataire"] = $mail_from;
+                }else {
+                    $temp_result["destinataire"] = $header["value"];
+                }
             }
+
+
+
             if ($header["name"] == "From"){
                 preg_match_all('/<(.*)>/', $header["value"], $matches);
                 $mail_from = $matches[1][0];
